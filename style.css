@@ -77,18 +77,15 @@ button {
   position: absolute;
   border: none;
   border-radius: 15px;
-  font-size: 1.3em;
-  padding: 12px 30px;
+  font-size: 1.2em;
+  padding: 12px 28px;
   cursor: pointer;
-  animation: pop 0.4s ease;
+  animation: pop 0.3s ease;
 }
 
 @keyframes pop {
-  from {
-    transform: scale(0);
-  }
-  to {
-    transform: scale(1);
-  }
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
+
 
