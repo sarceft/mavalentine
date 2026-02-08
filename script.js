@@ -6,14 +6,13 @@ const page2 = document.getElementById("page2");
 let attempts = 0;
 let scaleYes = 1;
 let scaleNo = 1;
-let extraYesCount = 0;
 const yesButtons = [];
 const MIN_DISTANCE = 120;
 
 function moveNoButton() {
   attempts++;
 
-  // --- CAS 7 : NON devient OUI ---
+  // 🔄 À la 7ᵉ tentative → NON devient OUI
   if (attempts === 7) {
     transformNoIntoYes();
     return;
@@ -28,17 +27,14 @@ function moveNoButton() {
 
   // YES principal grandit
   scaleYes += 0.15;
-  if (scaleYes <= 3.5) {
-    yesBtn.style.transform = `scale(${scaleYes})`;
-  }
+  yesBtn.style.transform = `scale(${Math.min(scaleYes, 3.5)})`;
 
   // NON rétrécit
-  scaleNo -= 0.08;
-  if (scaleNo < 0.5) scaleNo = 0.5;
+  scaleNo = Math.max(0.5, scaleNo - 0.08);
   noBtn.style.transform = `scale(${scaleNo})`;
 
-  // --- CAS 3 : apparition de 2 OUI ---
-  if (attempts === 3) {
+  // ➕ Tous les 3 essais (3 et 6) → 2 nouveaux OUI
+  if (attempts % 3 === 0 && attempts < 7) {
     addExtraYes();
     addExtraYes();
   }
@@ -49,9 +45,7 @@ function addExtraYes() {
   newYes.textContent = "Oui 💖";
   newYes.className = "extra-yes";
 
-  let pos;
-  let tries = 0;
-
+  let pos, tries = 0;
   do {
     pos = randomPosition();
     tries++;
@@ -62,7 +56,8 @@ function addExtraYes() {
 
   newYes.addEventListener("click", goToLovePage);
 
-  document.body.appendChild(newYes);
+  // ✅ IMPORTANT : on l’ajoute à page1
+  page1.appendChild(newYes);
   yesButtons.push(newYes);
 }
 
@@ -75,33 +70,30 @@ function randomPosition() {
 
 function isValidPosition(pos) {
   if (distanceTo(pos, yesBtn) < MIN_DISTANCE * scaleYes) return false;
-
   for (const btn of yesButtons) {
     if (distanceTo(pos, btn) < MIN_DISTANCE) return false;
   }
-
   return true;
 }
 
 function distanceTo(pos, el) {
   const r = el.getBoundingClientRect();
-  const cx = r.left + r.width / 2;
-  const cy = r.top + r.height / 2;
-
-  return Math.hypot(pos.x - cx, pos.y - cy);
+  return Math.hypot(
+    pos.x - (r.left + r.width / 2),
+    pos.y - (r.top + r.height / 2)
+  );
 }
 
 function transformNoIntoYes() {
   noBtn.textContent = "Oui 💖";
   noBtn.style.backgroundColor = "#ff4d6d";
   noBtn.style.transform = "scale(1)";
-  noBtn.classList.add("extra-yes");
+  noBtn.className = "extra-yes";
 
-  // Supprime l'ancien comportement
+  // Supprimer l’ancien comportement NON
   noBtn.replaceWith(noBtn.cloneNode(true));
 
-  const newYes = document.querySelector(".extra-yes:last-of-type");
-
+  const newYes = page1.querySelector(".extra-yes:last-child");
   newYes.addEventListener("click", goToLovePage);
 }
 
