@@ -8,7 +8,7 @@ let scaleNo = 1;
 let attempts = 0;
 
 const yesButtons = []; // stocke les OUI ajoutés
-const NEW_YES_EVERY = 8; // un nouveau OUI tous les X essais
+const NEW_YES_EVERY = 5; // un nouveau OUI tous les X essais
 const MIN_DISTANCE = 120; // distance minimale entre boutons
 
 function moveNoButton() {
