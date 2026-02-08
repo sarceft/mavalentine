@@ -6,24 +6,24 @@ const page2 = document.getElementById("page2");
 let scaleYes = 1;
 let scaleNo = 1;
 let attempts = 0;
-let extraYesAdded = false;
+
+const yesButtons = []; // stocke les OUI ajoutés
+const NEW_YES_EVERY = 8; // un nouveau OUI tous les X essais
+const MIN_DISTANCE = 120; // distance minimale entre boutons
 
 function moveNoButton() {
   attempts++;
 
-  // Déplacement aléatoire du NON
+  // Déplacement du NON
   const maxX = window.innerWidth - noBtn.offsetWidth;
   const maxY = window.innerHeight - noBtn.offsetHeight;
 
-  const randomX = Math.random() * maxX;
-  const randomY = Math.random() * maxY;
+  noBtn.style.left = Math.random() * maxX + "px";
+  noBtn.style.top = Math.random() * maxY + "px";
 
-  noBtn.style.left = randomX + "px";
-  noBtn.style.top = randomY + "px";
-
-  // YES grandit
+  // OUI principal grandit
   scaleYes += 0.12;
-  if (scaleYes <= 3.2) {
+  if (scaleYes <= 3.5) {
     yesBtn.style.transform = `scale(${scaleYes})`;
   }
 
@@ -32,26 +32,66 @@ function moveNoButton() {
   if (scaleNo < 0.4) scaleNo = 0.4;
   noBtn.style.transform = `scale(${scaleNo})`;
 
-  // Après 15 tentatives → nouveau OUI
-  if (attempts >= 15 && !extraYesAdded) {
+  // Tous les X essais → ajouter un nouveau OUI
+  if (attempts % NEW_YES_EVERY === 0) {
     addExtraYes();
-    extraYesAdded = true;
   }
 }
 
 function addExtraYes() {
   const newYes = document.createElement("button");
   newYes.textContent = "Oui 💖";
-  newYes.classList.add("extra-yes");
+  newYes.className = "extra-yes";
 
-  // Position aléatoire
-  newYes.style.left = Math.random() * (window.innerWidth - 120) + "px";
-  newYes.style.top = Math.random() * (window.innerHeight - 60) + "px";
+  let position;
+  let tries = 0;
 
-  // Même action que le vrai OUI
+  do {
+    position = randomPosition(newYes);
+    tries++;
+  } while (!isPositionValid(position) && tries < 100);
+
+  newYes.style.left = position.x + "px";
+  newYes.style.top = position.y + "px";
+
   newYes.addEventListener("click", goToLovePage);
 
   document.body.appendChild(newYes);
+  yesButtons.push(newYes);
+}
+
+function randomPosition(el) {
+  return {
+    x: Math.random() * (window.innerWidth - 140),
+    y: Math.random() * (window.innerHeight - 70)
+  };
+}
+
+function isPositionValid(pos) {
+  // Vérifie distance avec le OUI principal
+  if (distanceToElement(pos, yesBtn) < MIN_DISTANCE * scaleYes) {
+    return false;
+  }
+
+  // Vérifie distance avec les autres OUI
+  for (const btn of yesButtons) {
+    if (distanceToElement(pos, btn) < MIN_DISTANCE) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function distanceToElement(pos, el) {
+  const rect = el.getBoundingClientRect();
+  const elX = rect.left + rect.width / 2;
+  const elY = rect.top + rect.height / 2;
+
+  const dx = pos.x - elX;
+  const dy = pos.y - elY;
+
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 function goToLovePage() {
